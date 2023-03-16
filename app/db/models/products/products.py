@@ -22,6 +22,11 @@ class Products(Base):
     # category_id = Column(ForeignKey("product_categories.id"))
     # category = relationship("ProductCategory", back_populates="products", uselist=False)
 
+    available = relationship(
+        "PurchasedProducts",
+        back_populates="product",
+    )
+
     @classmethod
     def get_name(cls) -> str:
         return "Products"
