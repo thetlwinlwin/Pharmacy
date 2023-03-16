@@ -25,7 +25,7 @@ class User(Base):
     purchases = relationship(
         "Purchase",
         back_populates="issued_user",
-        lazy=False,
+        lazy=True,
     )
 
     @classmethod

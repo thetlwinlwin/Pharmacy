@@ -45,7 +45,6 @@ class ProductCrud(CrudBase[Products, ProductCreate, ProductUpdate]):
     def get_all_products(self) -> list[ProductResponse]:
         try:
             results = self._db_session.query(self.model).all()
-            print(f"result is {results}")
             return results
         except SQLAlchemyError:
             raise exc.NotFound()

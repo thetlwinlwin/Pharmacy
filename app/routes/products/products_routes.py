@@ -143,7 +143,6 @@ def update_product_type_by_id(
     new_obj: products_schema.ProductTypeCreate,
     product_service: products.ProductTypeCrud = Depends(products.get_product_type_crud),
 ):
-    print("here")
     product_service.update_by_id(id, new_obj)
 
 

@@ -8,15 +8,18 @@ from .purchase_product_schema import PurchaseProductCreate, PurchaseProductRespo
 
 
 class PurchaseBase(BaseModel):
-    user_id: int
     created_at: dt | None
 
 
-class PurchaseCreate(PurchaseBase):
+class PurchaseIncoming(PurchaseBase):
     purchased_products: list[PurchaseProductCreate]
 
 
-class PurchaseUpdate(PurchaseCreate):
+class PurchaseCreate(PurchaseIncoming):
+    user_id: int
+
+
+class PurchaseUpdate(PurchaseIncoming):
     pass
 
     class Config:
