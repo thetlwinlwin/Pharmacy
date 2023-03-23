@@ -1,17 +1,7 @@
 from pydantic import BaseModel
 
 from app.schema.products_schema import ProductResponse
-
-
-class QuantityUnitBase(BaseModel):
-    unit: str
-
-
-class QuantityUnitResponse(QuantityUnitBase):
-    pass
-
-    class Config:
-        orm_mode = True
+from app.schema.quantity_schema import QuantityUnitResponse
 
 
 class PurchaseProductBase(BaseModel):

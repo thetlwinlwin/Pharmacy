@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, status
 
-from app.db.models import purchase as service
-from app.schema import purchase as schema
+import app.schema.quantity_schema as schema
+from app.db.models import quantity_unit as service
 
 quantity_unit_router = APIRouter(
     prefix="/quantity-units",
