@@ -1,9 +1,11 @@
 from fastapi import Depends
+from sqlalchemy import Connection, event
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from app.db.crud_base import CrudBase, exc
 from app.db.get_session import get_db
+from app.db.models import stocks
 from app.schema.purchase import PurchaseCreate, PurchaseUpdate
 
 from .purchase import Purchase, PurchasedProducts
@@ -32,3 +34,41 @@ def get_purchase_crud(db_session: Session = Depends(get_db)):
         db_session=db_session,
         model=Purchase,
     )
+
+
+@event.listens_for(Purchase, "after_insert")
+def update_inventory_after_insert(_, conn: Connection, target: Purchase):
+    incoming_list = target.purchased_products
+    stock_values = []
+    try:
+        for i in incoming_list:
+            stock_item: stocks.Stock = conn.execute(
+                stocks.Stock.__table__.select().where(
+                    stocks.Stock.product_id == i.product_id
+                )
+            ).fetchone()
+            if (
+                stock_item is not None
+                and stock_item.quantity_unit_id == i.quantity_unit_id
+            ):
+                conn.execute(
+                    stocks.Stock.__table__.update()
+                    .values(
+                        {
+                            "stock_quantity": stock_item.stock_quantity + i.quantity,
+                        }
+                    )
+                    .where(stocks.Stock.id == stock_item.id)
+                )
+            else:
+                conn.execute(
+                    stocks.Stock.__table__.insert().values(
+                        {
+                            "stock_quantity": i.quantity,
+                            "quantity_unit_id": i.quantity_unit_id,
+                            "product_id": i.product_id,
+                        }
+                    )
+                )
+    except SQLAlchemyError as e:
+        raise exc.BadRequest()
