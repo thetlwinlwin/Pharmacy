@@ -1,8 +1,11 @@
 from sqlalchemy import Boolean, Column, Enum, Integer, String
-from sqlalchemy.orm import backref, relationship
+from sqlalchemy.orm import relationship
 
 from app.core.roles import UserRole
 from app.db.base import Base
+
+# coz if there is none, it gives error
+from app.db.models.sales import Sale
 
 
 class User(Base):
@@ -25,6 +28,11 @@ class User(Base):
     purchases = relationship(
         "Purchase",
         back_populates="issued_user",
+        lazy=True,
+    )
+    all_sales = relationship(
+        "Sale",
+        back_populates="sales_person",
         lazy=True,
     )
 
