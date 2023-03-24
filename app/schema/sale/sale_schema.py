@@ -12,7 +12,7 @@ class SaleBase(BaseModel):
 
 
 class SaleIncoming(SaleBase):
-    purchased_products: list[SaleProductCreate]
+    saled_products: list[SaleProductCreate]
 
 
 class SaleCreate(SaleIncoming):

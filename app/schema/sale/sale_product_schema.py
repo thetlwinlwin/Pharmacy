@@ -7,6 +7,7 @@ from app.schema.quantity_schema import QuantityUnitResponse
 class SaleProductBase(BaseModel):
     barcode: str | None
     quantity: int
+    quantity_unit_id: int
 
 
 class SaleProductCreate(SaleProductBase):

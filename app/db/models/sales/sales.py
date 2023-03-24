@@ -34,12 +34,14 @@ class SaledProducts(Base):
     id = Column(Integer, primary_key=True)
     product_id = Column(
         ForeignKey("products.id", ondelete="SET NULL"),
+        nullable=False,
     )
     sales_id = Column(
         ForeignKey("sales.id", ondelete="CASCADE"),
     )
     quantity_unit_id = Column(
         ForeignKey("quantity_units.id", ondelete="set null"),
+        nullable=False,
     )
     barcode = Column(String, nullable=True, index=True)
     quantity = Column(Integer, nullable=False)
