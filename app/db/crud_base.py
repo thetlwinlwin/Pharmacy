@@ -60,8 +60,7 @@ class CrudBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         id: int,
     ) -> None:
         try:
-            obj_to_del = self._db_session.query(self.model).get(id)
-
+            obj_to_del = self._db_session.get(self.model, id)
             if obj_to_del is None:
                 raise exc.NotFound()
 
@@ -76,7 +75,7 @@ class CrudBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         id: int,
     ) -> ModelType | None:
         try:
-            obj = self._db_session.query(self.model).get(id)
+            obj = self._db_session.get(self.model, id)
             if obj is None:
                 raise exc.NotFound()
             return obj
