@@ -1,9 +1,9 @@
 from typing import Any
 
 from fastapi import Depends
-from sqlalchemy import func
+from sqlalchemy import func, select
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, lazyload
 
 from app.core.roles import UserRole
 from app.db.crud_base import CrudBase, exc
@@ -73,6 +73,20 @@ class UserCrud(CrudBase[User, UserCreate, UserUpdate]):
             if results >= limit:
                 raise exc.Forbidden(details="Maxmium number of admin has reached.")
             return True
+        except SQLAlchemyError as e:
+            raise exc.BadRequest()
+
+    def get_only_the_id(self, id: int) -> int:
+        try:
+            stmt = (
+                select(self.model)
+                .options(lazyload(self.model.purchases), lazyload(self.model.all_sales))
+                .where(self.model.id == id)
+            )
+            obj = self._db_session.scalar(stmt)
+            if obj is None:
+                raise exc.NotFound()
+            return obj
         except SQLAlchemyError as e:
             raise exc.BadRequest()
 

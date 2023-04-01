@@ -72,7 +72,7 @@ def get_current_user(
     result: PayloadData = verify_token(incoming_token)
 
     # this sql will raise error if user is not active.
-    current_user = user_service.get_by_id(id=result.client_id)
+    current_user = user_service.get_only_the_id(id=result.client_id)
     if not current_user.is_active:
         raise exc.Forbidden(headers={"WWW-Authenticate": "Bearer"})
     return result
