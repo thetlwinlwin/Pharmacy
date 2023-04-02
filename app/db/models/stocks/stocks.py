@@ -16,6 +16,7 @@ class Stock(Base):
         Integer,
         ForeignKey("products.id", ondelete="CASCADE"),
         index=True,
+        unique=True,
     )
     quantity_unit_id = Column(
         Integer, ForeignKey("quantity_units.id", ondelete="SET NULL")
