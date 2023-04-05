@@ -2,6 +2,7 @@ import time
 
 from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app import exceptions as exc
@@ -27,6 +28,13 @@ app = FastAPI(
         exc.AppExceptionBase: exc.handler,
         RequestValidationError: validation_exception_handler,
     },
+)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
