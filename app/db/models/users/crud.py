@@ -40,7 +40,7 @@ class UserCrud(CrudBase[User, UserCreate, UserUpdate]):
             )
             return result
         except SQLAlchemyError as e:
-            raise exc.BadRequest()
+            raise exc.Unauthorized("Incorrect username or password.", headers=None)
 
     def change_passcode(self, id: int, new_password: str) -> User | None:
         try:
