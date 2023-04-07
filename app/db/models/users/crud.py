@@ -76,6 +76,20 @@ class UserCrud(CrudBase[User, UserCreate, UserUpdate]):
         except SQLAlchemyError as e:
             raise exc.BadRequest()
 
+    def get_self(self, id: int) -> User:
+        try:
+            stmt = (
+                select(self.model)
+                .options(lazyload(self.model.purchases), lazyload(self.model.all_sales))
+                .where(self.model.id == id)
+            )
+            obj = self._db_session.scalar(stmt)
+            if obj is None:
+                raise exc.NotFound()
+            return obj
+        except SQLAlchemyError as e:
+            raise exc.BadRequest()
+
     def get_only_the_id(self, id: int) -> int:
         try:
             stmt = (

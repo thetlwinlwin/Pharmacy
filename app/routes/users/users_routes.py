@@ -68,6 +68,16 @@ def admin_create_user(
 
 
 @user_router.get(
+    "/me",
+)
+def get_self(
+    user_service: users.UserCrud = Depends(users.get_user_crud),
+    info: ts.PayloadData = Depends(get_current_user),
+):
+    return user_service.get_self(id=info.client_id)
+
+
+@user_router.get(
     "/{id}",
     description="To Get User by id",
     response_model=user_schema.UserResponse,
