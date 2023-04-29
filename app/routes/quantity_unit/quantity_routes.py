@@ -1,7 +1,9 @@
 from fastapi import APIRouter, Depends, status
 
 import app.schema.quantity_schema as schema
+from app.core.roles import UserRole
 from app.db.models import quantity_unit as service
+from app.oauth2.oauth2 import UserRoleChecker
 
 quantity_unit_router = APIRouter(
     prefix="/quantity-units",
@@ -9,10 +11,18 @@ quantity_unit_router = APIRouter(
 )
 
 
+allow_roles = UserRoleChecker((UserRole.admin.value, UserRole.doctor.value))
+
+admin_role = UserRoleChecker((UserRole.admin.value))
+
+
 @quantity_unit_router.post(
     "/batch",
     description="create quantity unit in bulk",
     status_code=status.HTTP_201_CREATED,
+    dependencies=[
+        Depends(admin_role),
+    ],
 )
 def create_unit_in_bulk(
     new_objs: list[schema.QuantityUnitBase],
@@ -25,6 +35,9 @@ def create_unit_in_bulk(
     "/{id}",
     description="delete quantity unit by id",
     status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[
+        Depends(admin_role),
+    ],
 )
 def delete_quantity_unit(
     id: int,

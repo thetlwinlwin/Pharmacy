@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Depends, status
 
+from app.core.roles import UserRole
 from app.db.models import products
+from app.oauth2.oauth2 import UserRoleChecker
 from app.schema import products_schema
 
 products_router = APIRouter(
@@ -11,11 +13,18 @@ products_router = APIRouter(
 
 # Products
 
+allow_roles = UserRoleChecker((UserRole.admin.value, UserRole.doctor.value))
+
+admin_role = UserRoleChecker((UserRole.admin.value))
+
 
 @products_router.post(
     "/",
     description="Create products",
     status_code=status.HTTP_201_CREATED,
+    dependencies=[
+        Depends(admin_role),
+    ],
 )
 def create_product(
     new_obj: products_schema.ProductCreate,
@@ -28,6 +37,9 @@ def create_product(
     "/batch",
     description="Create products in bulk",
     status_code=status.HTTP_201_CREATED,
+    dependencies=[
+        Depends(admin_role),
+    ],
 )
 def create_products(
     new_objs: list[products_schema.ProductCreate],
@@ -40,6 +52,9 @@ def create_products(
     "/name/all",
     description="get all product names",
     response_model=list[products_schema.ProductNames],
+    dependencies=[
+        Depends(allow_roles),
+    ],
 )
 def get_all_product_names(
     product_service: products.ProductCrud = Depends(products.get_product_crud),
@@ -51,6 +66,9 @@ def get_all_product_names(
     "/all",
     description="get all products",
     response_model=list[products_schema.ProductResponse],
+    dependencies=[
+        Depends(allow_roles),
+    ],
 )
 def get_all_products(
     product_service: products.ProductCrud = Depends(products.get_product_crud),
@@ -74,6 +92,9 @@ def get_all_products(
     "/{id}",
     description="update product by id",
     status_code=status.HTTP_200_OK,
+    dependencies=[
+        Depends(admin_role),
+    ],
 )
 def update_product_by_id(
     id: int,
@@ -87,6 +108,9 @@ def update_product_by_id(
     "/{id}",
     description="Delete product by id",
     status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[
+        Depends(admin_role),
+    ],
 )
 def delete_product_by_id(
     id: int,
@@ -102,6 +126,9 @@ def delete_product_by_id(
     "/types",
     description="Create product type",
     status_code=status.HTTP_201_CREATED,
+    dependencies=[
+        Depends(admin_role),
+    ],
 )
 def create_product_type(
     new_obj: products_schema.ProductTypeCreate,
@@ -114,6 +141,9 @@ def create_product_type(
     "/types/batch",
     description="Create product types in bulk",
     status_code=status.HTTP_201_CREATED,
+    dependencies=[
+        Depends(admin_role),
+    ],
 )
 def create_product_types(
     new_objs: list[products_schema.ProductTypeCreate],
@@ -126,6 +156,9 @@ def create_product_types(
     "/types/all",
     description="get all the names of product types",
     response_model=list[products_schema.ProductTypeResponse],
+    dependencies=[
+        Depends(allow_roles),
+    ],
 )
 def get_all_product_type_name(
     product_service: products.ProductTypeCrud = Depends(products.get_product_type_crud),
@@ -137,6 +170,9 @@ def get_all_product_type_name(
     "/types/{id}",
     description="update product type by id",
     status_code=status.HTTP_200_OK,
+    dependencies=[
+        Depends(admin_role),
+    ],
 )
 def update_product_type_by_id(
     id: int,
@@ -150,6 +186,9 @@ def update_product_type_by_id(
     "/types/{id}",
     description="Delete product types by id",
     status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[
+        Depends(admin_role),
+    ],
 )
 def delete_product_type_by_id(
     id: int,
