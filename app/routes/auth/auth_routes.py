@@ -1,4 +1,5 @@
-from fastapi import APIRouter, BackgroundTasks, Depends, Form
+from fastapi import APIRouter, BackgroundTasks, Depends, Form, status
+from fastapi.responses import JSONResponse
 from fastapi.security import OAuth2PasswordRequestForm
 
 from app import exceptions as exc
@@ -35,16 +36,25 @@ def login(
         raise exc.Forbidden()
     if not verify_password(form_data.password, request_user.password):
         raise exc.Unauthorized("Incorrect username or password.", headers=None)
-    tokens = create_token(role=request_user.role, id=request_user.id)
+
+    issued_tokens = create_token(role=request_user.role, id=request_user.id)
+
     back_task.add_task(
         add_refresh_token_to_db,
         oauth_service=oauth_service,
         incoming_val=ts.RefreshTokenCreate(
             user_id=request_user.id,
-            token=tokens["refresh_token"],
+            token=issued_tokens["refresh_token"],
         ),
     )
-    return ts.Token(**tokens)
+    response = JSONResponse(
+        content="success",
+        status_code=status.HTTP_200_OK,
+    )
+    response.set_cookie(
+        key="access_token", value=issued_tokens["access_token"], httponly=True
+    )
+    return response
 
 
 @auth_router.post(

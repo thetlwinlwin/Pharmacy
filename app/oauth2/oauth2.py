@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 
-from fastapi import Depends
+from fastapi import Cookie, Depends
 from fastapi.security import OAuth2PasswordBearer
 from jose import ExpiredSignatureError, JWTError, jwt
 
@@ -64,12 +64,14 @@ def verify_token(incoming_token: str, addadum: str = "") -> PayloadData:
 
 def get_current_user(
     user_service: users.UserCrud = Depends(users.get_user_crud),
-    incoming_token: str = Depends(oauth2_scheme),
+    # access_token: str = Depends(oauth2_scheme),
+    access_token: str | None = Cookie(default=None),
 ) -> PayloadData:
     """
     get the payload data from access_token.
     """
-    result: PayloadData = verify_token(incoming_token)
+
+    result: PayloadData = verify_token(access_token)
 
     # this sql will raise error if user is not active.
     current_user = user_service.get_only_the_id(id=result.client_id)
