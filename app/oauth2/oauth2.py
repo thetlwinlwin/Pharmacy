@@ -64,8 +64,7 @@ def verify_token(incoming_token: str, addadum: str = "") -> PayloadData:
 
 def get_current_user(
     user_service: users.UserCrud = Depends(users.get_user_crud),
-    # access_token: str = Depends(oauth2_scheme),
-    access_token: str | None = Cookie(default=None),
+    access_token: str = Depends(oauth2_scheme),
 ) -> PayloadData:
     """
     get the payload data from access_token.

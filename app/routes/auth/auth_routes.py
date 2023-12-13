@@ -47,14 +47,7 @@ def login(
             token=issued_tokens["refresh_token"],
         ),
     )
-    response = JSONResponse(
-        content="success",
-        status_code=status.HTTP_200_OK,
-    )
-    response.set_cookie(
-        key="access_token", value=issued_tokens["access_token"], httponly=True
-    )
-    return response
+    return issued_tokens
 
 
 @auth_router.post(
