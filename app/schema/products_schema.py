@@ -35,8 +35,7 @@ class ProductUpdate(BaseModel):
 
 
 class ProductResponse(ProductBase):
-    id: int
-    product_type: ProductTypeResponse
+    product_type: ProductTypeBase
 
     class Config:
         orm_mode = True
