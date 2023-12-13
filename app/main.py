@@ -22,6 +22,10 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     )
 
 
+orgins = [
+    "http://localhost:4000",
+]
+
 app = FastAPI(
     title="My Pharmacy",
     exception_handlers={
@@ -31,10 +35,16 @@ app = FastAPI(
 )
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=orgins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "HEAD", "OPTIONS"],
+    allow_headers=[
+        "Access-Control-Allow-Headers",
+        "Content-Type",
+        "Authorization",
+        "Access-Control-Allow-Origin",
+        "Set-Cookie",
+    ],
 )
 
 
