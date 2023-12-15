@@ -3,13 +3,17 @@ from fastapi.responses import JSONResponse
 from fastapi.security import OAuth2PasswordRequestForm
 
 from app import exceptions as exc
+from app.core.roles import UserRole
 from app.db.models import oauth_refresh as rt
 from app.db.models import users
-from app.oauth2.oauth2 import create_token, verify_token
+from app.oauth2.oauth2 import (UserRoleChecker, create_token, get_current_user,
+                               verify_token)
 from app.oauth2.passcode_hash import verify_password
 from app.schema import token_schema as ts
 
 auth_router = APIRouter()
+
+roles = UserRoleChecker({i.value for i in UserRole})
 
 
 def add_refresh_token_to_db(
@@ -17,6 +21,10 @@ def add_refresh_token_to_db(
     incoming_val: ts.RefreshTokenCreate,
 ) -> None:
     oauth_service.add_with_user_id(incoming_val)
+
+
+def remove_refresh_token_from_db(oauth_service: rt.RefreshTokenCrud, id: int) -> None:
+    oauth_service.delete_by_user_id(user_id=id)
 
 
 @auth_router.post(
@@ -68,7 +76,7 @@ def refresh_token(
     user_result: users.User = user_service.get_by_id(data_from_token.client_id)
 
     if user_result.refresh_token.token != refresh_token:
-        user_service.freeze(user_result.id)
+        # user_service.freeze(user_result.id)
         raise exc.Forbidden(headers={"WWW-Authenticate": "Bearer"})
 
     tokens = create_token(role=user_result.role, id=user_result.id)
@@ -82,3 +90,23 @@ def refresh_token(
         ),
     )
     return ts.Token(**tokens)
+
+
+@auth_router.post(
+    "/logout",
+    description="logut",
+    dependencies=[Depends(roles)],
+)
+def logout(
+    back_task: BackgroundTasks,
+    user_service: users.UserCrud = Depends(users.get_user_crud),
+    oauth_service: rt.RefreshTokenCrud = Depends(rt.get_oauth_crud),
+    info: ts.PayloadData = Depends(get_current_user),
+):
+    user_service.get_self(id=info.client_id)
+    back_task.add_task(
+        remove_refresh_token_from_db,
+        oauth_service=oauth_service,
+        id=info.client_id,
+    )
+    return JSONResponse(content="success", status_code=status.HTTP_200_OK)
