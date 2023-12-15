@@ -29,6 +29,16 @@ class RefreshTokenCrud(CrudBase[RefreshToken, RefreshTokenCreate, RefreshTokenUp
         except SQLAlchemyError as e:
             raise exc.BadRequest()
 
+    def delete_by_user_id(self, user_id: int) -> None:
+        try:
+            self._db_session.query(self.model).filter(
+                self.model.user_id == user_id
+            ).delete()
+            self._db_session.commit()
+        except SQLAlchemyError as e:
+            raise exc.BadRequest()
+        return None
+
     def search_by_user_id(self, user_id: int) -> RefreshToken:
         try:
             return (
