@@ -12,6 +12,7 @@ class Token(BaseModel):
 class PayloadData(BaseModel):
     client_id: int
     role: UserRole
+    name: str
 
     class Config:
         orm_mode = True

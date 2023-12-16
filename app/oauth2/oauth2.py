@@ -20,11 +20,15 @@ REFRESH_TOKEN_EXPIRE_DAYS = settings.refresh_token_expire_days
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 
-def create_token(role: UserRole, id: int) -> dict[str, str]:
+def create_token(role: UserRole, id: int, name: str) -> dict[str, str]:
     """
     Responsible for creating the refresh and access token.
     """
-    data = PayloadData(client_id=id, role=role)
+    data = PayloadData(
+        client_id=id,
+        role=role,
+        name=name,
+    )
 
     access_expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINS)
     refresh_expire = datetime.utcnow() + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
